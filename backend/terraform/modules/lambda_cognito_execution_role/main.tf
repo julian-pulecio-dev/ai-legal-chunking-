@@ -1,8 +1,21 @@
-module "role" {
-  source = "../../resources/iam_role"
+moved {
+  from = module.role.aws_iam_role.this
+  to   = aws_iam_role.this
+}
 
+moved {
+  from = module.cognito_policy.aws_iam_role_policy.this
+  to   = aws_iam_role_policy.this
+}
+
+moved {
+  from = module.basic_execution_attachment.aws_iam_role_policy_attachment.this
+  to   = aws_iam_role_policy_attachment.this
+}
+
+resource "aws_iam_role" "this" {
   name = var.name
-  assume_role_policy_json = jsonencode({
+  assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect    = "Allow"
@@ -13,12 +26,10 @@ module "role" {
   tags = var.tags
 }
 
-module "cognito_policy" {
-  source = "../../resources/iam_role_policy"
-
-  name    = "${var.name}-cognito-idp"
-  role_id = module.role.id
-  policy_json = jsonencode({
+resource "aws_iam_role_policy" "this" {
+  name = "${var.name}-cognito-idp"
+  role = aws_iam_role.this.id
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect = "Allow"
@@ -36,9 +47,7 @@ module "cognito_policy" {
   })
 }
 
-module "basic_execution_attachment" {
-  source = "../../resources/iam_role_policy_attachment"
-
-  role_name  = module.role.name
+resource "aws_iam_role_policy_attachment" "this" {
+  role       = aws_iam_role.this.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }

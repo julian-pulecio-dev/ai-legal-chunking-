@@ -1,5 +1,5 @@
 module "backend_app" {
-  source = "./modules/composite/backend_app"
+  source = "./modules/backend_app"
 
   name                = var.name
   cors_allow_origins  = var.cors_allow_origins
